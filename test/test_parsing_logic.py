@@ -1,40 +1,35 @@
-from bs4 import BeautifulSoup
+import pytest
 
-from models.review import Review
+from parser.review_parser import reviews_parser
 
 
-def test_parsing_logic(fetched_test_page1):
-   soup=BeautifulSoup(fetched_test_page1,'html.parser')
-   review_entries=soup.find_all('div',class_="review-entry")
-   review_content=review_entries[0].find('p',class_='review-content')
-   review_author=review_entries[0].find('span')
-   review_title=review_entries[0].find('h3')
-   review_ratings_all_element=review_entries[0].find('div',class_='review-ratings-all')
-   review_elements=review_ratings_all_element.find_all('div',class_='tr')
-   ratings_map={}
-   for ind_review_element in review_elements:
-      rating_elements=ind_review_element.find_all('div')
-      rating_desc_elem=rating_elements[0]
-      rating_elem=rating_elements[1]
-      if rating_desc_elem.text=="Recommend Dealer":
-         ratings_map[rating_desc_elem.text]=rating_elem.text.strip()
-      else:
-         for class_string in rating_elem['class']:
-            if not class_string.startswith('rating-static-indv') and class_string.startswith('rating-'):
-               ratings_map[rating_desc_elem.text] = class_string.split("-")[1]
-
-   review=Review()
-   review.title=review_title.text
-   review.author=review_author.text
-   review.text=review_content.text
-   review.customer_service=ratings_map['Customer Service']
-   review.friendliness=ratings_map['Friendliness']
-   review.pricing=ratings_map['Pricing']
-   review.experience=ratings_map['Overall Experience']
-   review.recommendation=ratings_map['Recommend Dealer']
-   review.positivity_score=None
-   print(review)
+@pytest.mark.parametrize("html_content",[(None,), ('',), ('iuhei iufehihf iehf',)])
+def test_parsing_logic_page_with_empty_content(html_content):
+    reviews = reviews_parser(None)
+    assert len(reviews)==0
 
 
 
+def test_parsing_logic_page_1(fetched_test_page1):
+    reviews = reviews_parser(fetched_test_page1)
+    assert len(reviews) == 10
 
+
+def test_parsing_logic_page_2(fetched_test_page2):
+    reviews = reviews_parser(fetched_test_page2)
+    assert len(reviews) == 10
+
+
+def test_parsing_logic_page_3(fetched_test_page3):
+    reviews = reviews_parser(fetched_test_page3)
+    assert len(reviews) == 10
+
+
+def test_parsing_logic_page_4(fetched_test_page4):
+    reviews = reviews_parser(fetched_test_page4)
+    assert len(reviews) == 10
+
+
+def test_parsing_logic_page_5(fetched_test_page5):
+    reviews = reviews_parser(fetched_test_page5)
+    assert len(reviews) == 10
