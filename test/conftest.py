@@ -24,3 +24,9 @@ def fetched_test_page1():
     f = open('./test_resources/page-1.html', 'r')
     html_file_text = f.read()
     return html_file_text
+
+@pytest.fixture
+def fetched_test_page1():
+    f = open('./test_resources/page-1.html', 'r')
+    html_file_text = f.read()
+    return html_file_text
