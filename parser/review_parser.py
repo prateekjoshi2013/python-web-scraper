@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from models.review import Review
 
 
-def reviews_parser(html_page_string):
+def reviews_parser(page_no,html_page_string):
     review_list = []
     if html_page_string:
         soup = BeautifulSoup(html_page_string, 'html.parser')

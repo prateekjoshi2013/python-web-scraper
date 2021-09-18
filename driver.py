@@ -1,5 +1,6 @@
 import asyncio
 import concurrent.futures
+import functools
 import textwrap
 
 from calculator.positivity_calculator import calculate_positivity
@@ -23,10 +24,12 @@ async def process_url(url, page_no, loop, executor):
     except Exception as ex:
         print(f'error {ex} scraping page{page_no}')
     print(f'started parsing page:{page_no}')
-    parse_html_review_task = loop.run_in_executor(executor, reviews_parser, fetched_html_content)
+    partial_reviews_parser = functools.partial(reviews_parser,page_no,fetched_html_content )
+    parse_html_review_task = loop.run_in_executor(executor, partial_reviews_parser)
     result = await asyncio.gather(parse_html_review_task)
     print(f'finished parsing page:{page_no}')
-    calculated_positivity_task = loop.run_in_executor(executor, calculate_positivity, *result)
+    partial_calculate_positivity = functools.partial(calculate_positivity,page_no,*result)
+    calculated_positivity_task = loop.run_in_executor(executor, partial_calculate_positivity)
     print(f'started positivity calculation on page:{page_no}')
     gathered_tasks = await asyncio.gather(calculated_positivity_task, loop=loop, return_exceptions=False)
     completed_gathered_tasks = []

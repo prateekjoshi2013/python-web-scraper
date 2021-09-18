@@ -1,7 +1,7 @@
 from textblob import TextBlob
 
 
-def calculate_positivity(reviews):
+def calculate_positivity(page_no,reviews):
     for review in reviews:
         positivity = 0
         positivity += review.experience
