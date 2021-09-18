@@ -39,8 +39,15 @@ async def main(urls,loop,executor):
 if __name__=='__main__':
     executor=concurrent.futures.ProcessPoolExecutor(max_workers=5)
     loop=asyncio.get_event_loop()
+    final_result=[]
     try:
         most_positive_reviews = loop.run_until_complete(main(urls,loop,executor))
-        print(most_positive_reviews)
+        for msp_review in most_positive_reviews:
+            msp1= msp_review.result()
+            for msp in msp1:
+                for msp_r in msp.result():
+                    final_result.append(msp_r)
+
     finally:
         loop.close()
+    print(final_result)
