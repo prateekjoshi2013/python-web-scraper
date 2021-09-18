@@ -1,5 +1,6 @@
 import asyncio
 import concurrent.futures
+import textwrap
 
 from calculator.positivity_calculator import calculate_positivity
 from parser.review_parser import reviews_parser
@@ -49,7 +50,9 @@ async def main(urls, loop, executor):
 def print_review(review):
     print(f"""
         AUTHOR:          {review.author}
-        REVIEW:          {review.text}
+        REVIEW--------------------------          
+        {textwrap.fill(review.text,150)}
+        --------------------------------
         FRIENDLINESS:    {review.friendliness}
         PRICING:         {review.pricing}
         EXPERIENCE:      {review.experience}
