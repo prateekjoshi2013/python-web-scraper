@@ -12,7 +12,12 @@ urls = [
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page4/?filter=#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page5/?filter=#link',
 ]
+
+
 if __name__ == '__main__':
+    '''
+        THIS IS JUST FOR BENCHMARKING BETWEEN THE SEQUENTIAL AND PARALLEL FLOW
+    '''
     start_time = time.perf_counter()
     collected_positive_reviews = []
     for i, url in enumerate(urls, start=1):

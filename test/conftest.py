@@ -36,14 +36,14 @@ url_page_5 = 'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer
 
 @pytest.fixture
 def fetched_test_page1():
-    f = open('page-1.html', 'r')
+    f = open('test_assets/page-1.html', 'r')
     html_file_text = f.read()
     return html_file_text
 
 
 @pytest.fixture
 def create_reviews():
-    f = open('page-1.html', 'r')
+    f = open('test_assets/page-1.html', 'r')
     html_file_text = f.read()
     return html_file_text
 

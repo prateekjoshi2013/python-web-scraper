@@ -15,7 +15,7 @@ def test_parsing_logic_page_with_empty_content(page_no,html_content):
 
 @pytest.mark.parametrize("page_no",[1,2,3,4,5])
 def test_parsing_logic_page(page_no):
-    f = open(f'page-{page_no}.html', 'r')
+    f = open(f'./test_assets/page-{page_no}.html', 'r')
     html_file_text = f.read()
     f.close()
     reviews = reviews_parser(3,html_file_text)
