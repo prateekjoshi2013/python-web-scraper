@@ -24,15 +24,15 @@ async def process_url(url,page_no,loop,executor):
     print(f'started positivity calculation on page:{page_no}')
     calculated_positivity_reviews,pending = await asyncio.wait([calculated_positivity_task])
     print(f'finished positivity calculation on page:{page_no}')
-    return calculated_positivity_reviews
+    for completed_task in calculated_positivity_reviews:
+        return completed_task
 
 
 async def main(urls,loop,executor):
     # create async tasks
     url_fetch_tasks=[process_url(url,i,loop,executor) for i,url in enumerate(urls,start=1)]
     completed,pending = await asyncio.wait(url_fetch_tasks,return_when=asyncio.ALL_COMPLETED)
-    # print(completed,pending)
-    return completed
+    return [completed_task.result() for completed_task in completed]
 
 
 
@@ -43,11 +43,13 @@ if __name__=='__main__':
     try:
         most_positive_reviews = loop.run_until_complete(main(urls,loop,executor))
         for msp_review in most_positive_reviews:
-            msp1= msp_review.result()
-            for msp in msp1:
-                for msp_r in msp.result():
-                    final_result.append(msp_r)
-
+            for msp1 in msp_review.result():
+                try:
+                    final_result.append(msp1)
+                except Exception as ex:
+                    print(ex)
+    except Exception as e:
+        print(e)
     finally:
         loop.close()
     print(final_result)
