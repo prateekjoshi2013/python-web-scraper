@@ -12,5 +12,3 @@ class Review:
     recommendation:str
     customer_service:float
     positivity_score:float
-
-

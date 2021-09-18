@@ -1,35 +1,24 @@
+from collections import namedtuple
+
 import pytest
 
+from models.review import Review
 from parser.review_parser import reviews_parser
 
 
-@pytest.mark.parametrize("html_content",[(None,), ('',), ('iuhei iufehihf iehf',)])
-def test_parsing_logic_page_with_empty_content(html_content):
-    reviews = reviews_parser(None)
+@pytest.mark.parametrize("page_no,html_content",[(1,None,), (2,'',), (3,'iuhei iufehihf iehf',)])
+def test_parsing_logic_page_with_empty_content(page_no,html_content):
+    reviews = reviews_parser(0,None)
     assert len(reviews)==0
 
 
 
-def test_parsing_logic_page_1(fetched_test_page1):
-    reviews = reviews_parser(fetched_test_page1)
+@pytest.mark.parametrize("page_no",[1,2,3,4,5])
+def test_parsing_logic_page(page_no):
+    f = open(f'page-{page_no}.html', 'r')
+    html_file_text = f.read()
+    f.close()
+    reviews = reviews_parser(3,html_file_text)
     assert len(reviews) == 10
 
 
-def test_parsing_logic_page_2(fetched_test_page2):
-    reviews = reviews_parser(fetched_test_page2)
-    assert len(reviews) == 10
-
-
-def test_parsing_logic_page_3(fetched_test_page3):
-    reviews = reviews_parser(fetched_test_page3)
-    assert len(reviews) == 10
-
-
-def test_parsing_logic_page_4(fetched_test_page4):
-    reviews = reviews_parser(fetched_test_page4)
-    assert len(reviews) == 10
-
-
-def test_parsing_logic_page_5(fetched_test_page5):
-    reviews = reviews_parser(fetched_test_page5)
-    assert len(reviews) == 10

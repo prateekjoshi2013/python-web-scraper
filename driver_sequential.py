@@ -23,5 +23,5 @@ if __name__ == '__main__':
         for positive_review in positivitied_reviews:
             collected_positive_reviews.append(positive_review)
     collected_positive_reviews.sort(key=lambda review: review.positivity_score, reverse=True)
-    [print(pos_review) for pos_review in collected_positive_reviews[:min(3, len(collected_positive_reviews))]]
-    print(f'TIME ELAPSED:{time.perf_counter() - start_time}')
+    [print(pos_review,'\n') for pos_review in collected_positive_reviews[:min(3, len(collected_positive_reviews))]]
+    print(f'TIME_TAKEN:{time.perf_counter() - start_time}')
