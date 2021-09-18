@@ -1,7 +1,10 @@
+import logging
+
 from textblob import TextBlob
 
 
 def calculate_positivity(page_no,reviews):
+    logging.info(f'started positivity calculation for page:{page_no}')
     for review in reviews:
         positivity = 0
         positivity += review.experience
@@ -13,6 +16,7 @@ def calculate_positivity(page_no,reviews):
         review.positivity_score = positivity
         review.positivity_score += calculate_review_text_positivity(review.text)
     reviews.sort(key=lambda review: review.positivity_score, reverse=True)
+    logging.info(f'started positivity calculation for page:{page_no}')
     return reviews[:min(3, len(reviews))]
 
 

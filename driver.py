@@ -2,11 +2,13 @@ import asyncio
 import concurrent.futures
 import functools
 import textwrap
-
+import logging
+import time
 from calculator.positivity_calculator import calculate_positivity
 from parser.review_parser import reviews_parser
 from scraper.html_scraper import fetch_html_page
 
+logging.basicConfig(level=logging.DEBUG,format='%(name)s - %(levelname)s - %(message)s')
 urls = [
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page2/?filter=#link',
@@ -17,20 +19,16 @@ urls = [
 
 
 async def process_url(url, page_no, loop, executor):
-    print(f'started fetching page:{page_no}')
     fetched_html_content = ''
     try:
         fetched_html_content = await fetch_html_page(page_no, url)
     except Exception as ex:
-        print(f'error {ex} scraping page{page_no}')
-    print(f'started parsing page:{page_no}')
+        logging.error(f'error {ex} scraping page{page_no}')
     partial_reviews_parser = functools.partial(reviews_parser,page_no,fetched_html_content )
     parse_html_review_task = loop.run_in_executor(executor, partial_reviews_parser)
     result = await asyncio.gather(parse_html_review_task)
-    print(f'finished parsing page:{page_no}')
     partial_calculate_positivity = functools.partial(calculate_positivity,page_no,*result)
     calculated_positivity_task = loop.run_in_executor(executor, partial_calculate_positivity)
-    print(f'started positivity calculation on page:{page_no}')
     gathered_tasks = await asyncio.gather(calculated_positivity_task, loop=loop, return_exceptions=False)
     completed_gathered_tasks = []
     for sublist in gathered_tasks:
@@ -66,6 +64,7 @@ def print_review(review):
 
 
 if __name__ == '__main__':
+    start_time=time.perf_counter()
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=5)
     loop = asyncio.get_event_loop()
     final_reviews = []
@@ -79,3 +78,4 @@ if __name__ == '__main__':
         loop.close()
     final_reviews.sort(key=lambda review: review.positivity_score, reverse=True)
     [print_review(review) for review in final_reviews[:min(3, len(final_reviews))]]
+    logging.info(f'TIME_TAKEN:{time.perf_counter()-start_time}')

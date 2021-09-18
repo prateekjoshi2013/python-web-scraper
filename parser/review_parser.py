@@ -1,9 +1,12 @@
+import logging
+
 from bs4 import BeautifulSoup
 
 from models.review import Review
 
 
 def reviews_parser(page_no,html_page_string):
+    logging.info(f'started parsing page:{page_no}')
     review_list = []
     if html_page_string:
         soup = BeautifulSoup(html_page_string, 'html.parser')
@@ -11,6 +14,7 @@ def reviews_parser(page_no,html_page_string):
         for review_entry in review_entries:
             review = review_parser(review_entry)
             review_list.append(review)
+    logging.info(f'finished parsing page:{page_no}')
     return review_list
 
 
