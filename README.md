@@ -1,5 +1,5 @@
-#Web Scraper Using Python
-##Objective
+# Web Scraper Using Python
+## Objective
 The KGB has noticed a resurgence of overly excited reviews for a McKaig Chevrolet Buick, a dealership they have planted in the United States. In order to avoid attracting unwanted attention, you’ve been enlisted to scrape reviews for this dealership from DealerRater.com and uncover the top three worst offenders of these overly positive endorsements.
 
 ## Features
@@ -12,7 +12,7 @@ The KGB has noticed a resurgence of overly excited reviews for a McKaig Chevrole
 - Used asynchronus and multithreading constructs for efficiency
 - Provided code for both sequential and parallel flow for the task to show the performance gain
 
-##Objectives Accomplished
+## Objectives Accomplished
 - Created an efficient webscraper using concurrency constructs
 - Calculated of positive sentiment in reviews
 - Provided code for both sequential and parallel flow for the task to show the performance gain
