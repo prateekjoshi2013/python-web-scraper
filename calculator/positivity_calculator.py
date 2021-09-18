@@ -11,7 +11,7 @@ def calculate_positivity(reviews):
         positivity += 50.0 if review.recommendation else 0
         positivity /= 50 * 5
         review.positivity_score = positivity
-    review.positivity_score += calculate_review_text_positivity(review.text)
+        review.positivity_score += calculate_review_text_positivity(review.text)
     reviews.sort(key=lambda review: review.positivity_score, reverse=True)
     return reviews[:min(3, len(reviews))]
 

@@ -6,7 +6,7 @@ from parser.review_parser import reviews_parser
 from scraper.html_scraper import fetch_html_page
 
 urls = [
-    'https://www.dealerraterxyz.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
+    'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page2/?filter=#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page3/?filter=#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page4/?filter=#link',
@@ -27,7 +27,6 @@ async def process_url(url, page_no, loop, executor):
     print(f'finished parsing page:{page_no}')
     calculated_positivity_task = loop.run_in_executor(executor, calculate_positivity, *result)
     print(f'started positivity calculation on page:{page_no}')
-    # calculated_positivity_reviews,pending = await asyncio.gather(calculated_positivity_task,loop=loop,return_exceptions=False)
     gathered_tasks = await asyncio.gather(calculated_positivity_task, loop=loop, return_exceptions=False)
     completed_gathered_tasks = []
     for sublist in gathered_tasks:
@@ -47,6 +46,19 @@ async def main(urls, loop, executor):
     return completed_gathered_tasks
 
 
+def print_review(review):
+    print(f"""
+        AUTHOR:          {review.author}
+        REVIEW:          {review.text}
+        FRIENDLINESS:    {review.friendliness}
+        PRICING:         {review.pricing}
+        EXPERIENCE:      {review.experience}
+        RECOMMENDATION:  {review.recommendation}
+        CUSTOMER_SERVICE:{review.customer_service}
+        POSITIVITY_SCORE:{review.positivity_score}
+    """)
+
+
 if __name__ == '__main__':
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=5)
     loop = asyncio.get_event_loop()
@@ -60,4 +72,4 @@ if __name__ == '__main__':
     finally:
         loop.close()
     final_reviews.sort(key=lambda review: review.positivity_score, reverse=True)
-    print(final_reviews[:min(3, len(final_reviews))])
+    [print_review(review) for review in final_reviews[:min(3, len(final_reviews))]]
