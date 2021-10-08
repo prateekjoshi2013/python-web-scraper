@@ -55,9 +55,8 @@ async def process_url(url, page_no, loop, executor):
     try:
         fetched_html_content = await fetch_html_page(page_no, url)
     except Exception as ex:
-        result = ResultHolder(False, Exception(page_no))
         logging.error(f'error {ex} scraping page{page_no}')
-        return result
+        return ResultHolder(False, Exception(page_no))
     partial_reviews_parser = functools.partial(reviews_parser, page_no, fetched_html_content)
     parse_html_review_task = loop.run_in_executor(executor, partial_reviews_parser)
     result = await asyncio.gather(parse_html_review_task)
@@ -68,8 +67,7 @@ async def process_url(url, page_no, loop, executor):
     for sublist in gathered_tasks:
         for gathered_task in sublist:
             completed_gathered_tasks.append(gathered_task)
-    result = ResultHolder(True, completed_gathered_tasks)
-    return result
+    return ResultHolder(True, completed_gathered_tasks)
 
 
 async def main(url_indices, loop, executor):
