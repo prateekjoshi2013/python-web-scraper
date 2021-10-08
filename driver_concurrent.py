@@ -4,13 +4,18 @@ import functools
 import textwrap
 import logging
 import time
+from asyncio import Future
+
 from calculator.positivity_calculator import calculate_positivity
+from models.result_holder import ResultHolder
 from parser.review_parser import reviews_parser
 from scraper.html_scraper import fetch_html_page
 
 logging.basicConfig(level=logging.DEBUG, format='%(name)s - %(levelname)s - %(message)s')
 
 urls = [
+    'https://www.dealerrat.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
+    'https://www.dealerrat.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page2/?filter=#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page3/?filter=#link',
@@ -50,21 +55,24 @@ async def process_url(url, page_no, loop, executor):
     try:
         fetched_html_content = await fetch_html_page(page_no, url)
     except Exception as ex:
+        result = ResultHolder(False, Exception(page_no))
         logging.error(f'error {ex} scraping page{page_no}')
+        return result
     partial_reviews_parser = functools.partial(reviews_parser, page_no, fetched_html_content)
     parse_html_review_task = loop.run_in_executor(executor, partial_reviews_parser)
     result = await asyncio.gather(parse_html_review_task)
     partial_calculate_positivity = functools.partial(calculate_positivity, page_no, *result)
     calculated_positivity_task = loop.run_in_executor(executor, partial_calculate_positivity)
-    gathered_tasks = await asyncio.gather(calculated_positivity_task, loop=loop, return_exceptions=False)
+    gathered_tasks = await asyncio.gather(calculated_positivity_task, loop=loop, return_exceptions=True)
     completed_gathered_tasks = []
     for sublist in gathered_tasks:
         for gathered_task in sublist:
             completed_gathered_tasks.append(gathered_task)
-    return completed_gathered_tasks
+    result = ResultHolder(True, completed_gathered_tasks)
+    return result
 
 
-async def main(urls, loop, executor):
+async def main(url_indices, loop, executor):
     """
     Method to create the async tasks for the event loop for chained coroutine
     which is responsible for calling different methods on the asynchronus data flow
@@ -86,13 +94,17 @@ async def main(urls, loop, executor):
 
     """
     # create async tasks
-    url_fetch_tasks = [process_url(url, i, loop, executor) for i, url in enumerate(urls, start=1)]
-    gathered_tasks = await asyncio.gather(*url_fetch_tasks, loop=loop, return_exceptions=False)
+    url_fetch_tasks = [process_url(urls[i], i, loop, executor) for i in url_indices]
+    gathered_tasks = await asyncio.gather(*url_fetch_tasks, loop=loop, return_exceptions=True)
     completed_gathered_tasks = []
-    for sublist in gathered_tasks:
-        for gathered_task in sublist:
-            completed_gathered_tasks.append(gathered_task)
-    return completed_gathered_tasks
+    failed_urls_inds = []
+    for result_holder in gathered_tasks:
+        if result_holder.is_successful:
+            for gathered_task in result_holder.result:
+                completed_gathered_tasks.append(gathered_task)
+        else:
+            failed_urls_inds.append(result_holder.result.args[0])
+    return completed_gathered_tasks, failed_urls_inds
 
 
 def print_review(review):
@@ -139,10 +151,19 @@ if __name__ == '__main__':
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=5)
     loop = asyncio.get_event_loop()
     final_reviews = []
+    attempts = 1
+    url_indices = list(range(5))
     try:
-        most_positive_reviews = loop.run_until_complete(main(urls, loop, executor))
+        most_positive_reviews, failed_url_indices = loop.run_until_complete(main(url_indices, loop, executor))
         for result in most_positive_reviews:
             final_reviews.append(result)
+        while failed_url_indices and attempts < 4:
+            most_positive_reviews, failed_url_indices = loop.run_until_complete(
+                main(failed_url_indices, loop, executor))
+            for result in most_positive_reviews:
+                final_reviews.append(result)
+            logging.warning(f'attempt no {attempts}')
+            attempts += 1
     except Exception as e:
         print(e)
     finally:
