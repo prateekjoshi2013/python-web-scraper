@@ -14,8 +14,8 @@ from scraper.html_scraper import fetch_html_page
 logging.basicConfig(level=logging.DEBUG, format='%(name)s - %(levelname)s - %(message)s')
 
 urls = [
-    'https://www.dealerrat.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
-    'https://www.dealerrat.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
+    'https://www.dealerrater.com1/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
+    'https://www.dealerrater.com2/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page2/?filter=#link',
     'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page3/?filter=#link',
@@ -152,15 +152,15 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     final_reviews = []
     attempts = 1
-    url_indices = list(range(5))
+    url_indices = list(range(len(urls)))
     try:
         most_positive_reviews, failed_url_indices = loop.run_until_complete(main(url_indices, loop, executor))
         for result in most_positive_reviews:
             final_reviews.append(result)
         while failed_url_indices and attempts < 4:
-            most_positive_reviews, failed_url_indices = loop.run_until_complete(
+            positive_reviews, failed_url_indices = loop.run_until_complete(
                 main(failed_url_indices, loop, executor))
-            for result in most_positive_reviews:
+            for result in positive_reviews:
                 final_reviews.append(result)
             logging.warning(f'attempt no {attempts}')
             attempts += 1
