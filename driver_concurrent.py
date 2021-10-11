@@ -4,7 +4,7 @@ import functools
 import textwrap
 import logging
 import time
-from asyncio import Future
+
 
 from calculator.positivity_calculator import calculate_positivity
 from models.result_holder import ResultHolder
